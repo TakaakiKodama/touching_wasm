@@ -4,9 +4,10 @@ Copyright 2018 The Go Authors. All rights reserved.
 Use of this source code is governed by a BSD-style
 license that can be found in the LICENSE file.
 -->
-<html>
+<html lang="ja">
 
 <head>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.css"/>
 	<meta charset="utf-8">
 	<title>Go wasm</title>
 </head>
@@ -17,34 +18,16 @@ license that can be found in the LICENSE file.
 	<script src="https://cdn.jsdelivr.net/npm/text-encoding@0.7.0/lib/encoding.min.js"></script>
 	(see https://caniuse.com/#feat=textencoder)
 	-->
-
+	<div id="app"></div>
 	<script src="wasm_exec.js"></script>
 	<script>
-		if (!WebAssembly.instantiateStreaming) { // polyfill
-			WebAssembly.instantiateStreaming = async (resp, importObject) => {
-				const source = await (await resp).arrayBuffer();
-				return await WebAssembly.instantiate(source, importObject);
-			};
-		}
-
 		const go = new Go();
-		let mod, inst;
 		WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
-			mod = result.module;
-			inst = result.instance;
-			document.getElementById("runButton").disabled = false;
-		}).catch((err) => {
-			console.error(err);
+			go.run(result.instance);
 		});
-
-		async function run() {
-			console.clear();
-			await go.run(inst);
-			inst = await WebAssembly.instantiate(mod, go.importObject); // reset instance
-		}
 	</script>
 
-	<button onClick="run();" id="runButton" disabled>Run</button>
+
 </body>
 
 </html>
